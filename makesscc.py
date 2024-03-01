@@ -44,12 +44,12 @@ def get_file_info(id_path, type):
                 helix_start = int(line[HELIX_SEQ_START[0] - 1:HELIX_SEQ_START[1]].strip())
                 helix_end = int(line[HELIX_SEQ_END[0] - 1:HELIX_SEQ_END[1]].strip())
                 belonging_chain = line[HELIX_CHAIN - 1]
-                ss_info['helix'].append({'start': helix_start, 'end': helix_end, 'chain': belonging_chain})
+                ss_info['helix'].append([helix_start, helix_end, belonging_chain])
             if line.startswith('SHEET'):  # Get Secondary Structure-Infos for Sheet, else C
                 sheet_start = int(line[SHEET_SEQ_START[0] - 1:SHEET_SEQ_START[1]].strip())
                 sheet_end = int(line[SHEET_SEQ_END[0] - 1:SHEET_SEQ_END[1]].strip())
                 belonging_chain = line[SHEET_CHAIN - 1]
-                ss_info['sheet'].append({'start': sheet_start, 'end': sheet_end, 'chain': belonging_chain})
+                ss_info['sheet'].append([sheet_start, sheet_end, belonging_chain])
             if line.startswith('ATOM'):  # Extract Atom Info
                 atom_type = line[ATOM_TYPE_POS[0] - 1:ATOM_TYPE_POS[1]].strip()
                 if atom_type == type:  # For Atoms with required Atom Type
@@ -61,6 +61,7 @@ def get_file_info(id_path, type):
                     x_coord = float(line[X_COORD[0] - 1:X_COORD[1]])
                     y_coord = float(line[Y_COORD[0] - 1:Y_COORD[1]])
                     z_coord = float(line[Z_COORD[0] - 1:Z_COORD[1]])
+                    print(x_coord, y_coord)
                     # Create Atom_info Dict with Atom-Info-Lists as Values:
                     atom_info[atom_id] = (chain, position, atom_type, aa, x_coord, y_coord, z_coord)
             if line.startswith('MODEL'):
@@ -84,15 +85,15 @@ def calc_distance(atom_i, atom_j):
 
 
 def get_secondary_structure(pos, chain, ss_info):
+    print(ss_info)
     helix_info = ss_info['helix']
     sheet_info = ss_info['sheet']
 
-    print(helix_info)
     for info in helix_info:
-        if info['start'] <= int(pos) <= info['end'] and info['chain'] == chain:
+        if info[0] <= int(pos) <= info[1] and info[2] == chain:
             return 'H'
     for info in sheet_info:
-        if info['start'] <= int(pos) <= info['end'] and info['chain'] == chain:
+        if info[0] <= int(pos) <= info[1] and info[2] == chain:
             return 'E'
     return 'C'  # Coil
 
@@ -113,27 +114,16 @@ def calc_contacts(atom_info, distance, seq_length, ss_info):
                               'global': 0,
                               'local': 0
                               }
-        for j in range(i + 1, len(atom_id)):
+        for j in range(0, len(atom_id)):
+            if i == j:
+                continue
             pos_j = atom_id[j]
             this_distance = calc_distance(atom_info[pos_i], atom_info[pos_j])
-            if this_distance <= distance:
-                if abs(atom_info[pos_i][1] - atom_info[pos_j][1]) <= seq_length:
+            if this_distance < distance:
+                if abs(atom_info[pos_i][1] - atom_info[pos_j][1]) < seq_length and atom_info[pos_i][0] == atom_info[pos_j][0]:
                     contacts[(pos_i,)]['local'] += 1
                 else:
                     contacts[(pos_i,)]['global'] += 1
-            if (pos_j,) not in contacts:
-                contacts[(pos_j,)] = {'chain': atom_info[pos_j][0],
-                                      'pos': atom_info[pos_j][1],
-                                      'serial': pos_j,
-                                      'aa': AA_DICT[atom_info[pos_j][3]],
-                                      'ss': get_secondary_structure(pos_j, atom_info[pos_j][0], ss_info),
-                                      'global': 0,
-                                      'local': 0
-                                      }
-            if abs(atom_info[pos_i][1] - atom_info[pos_j][1]) <= seq_length:
-                contacts[(pos_j,)]['local'] += 1
-            else:
-                contacts[(pos_j,)]['global'] += 1
     return contacts
 
 
