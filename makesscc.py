@@ -226,7 +226,7 @@ def generate_distance_matrix(distances):
 
 def plot_distance_matrix(distances, id):
     # Define custom colormap
-    colors = ['white', '#FFFF33', '#FFCC33', '#FF9900', 'red', '#FF0000', '#99FF00', '#990000']
+    colors = ['white', '#FFFF33', '#FFCC33', '#FF9900', '#F3752C', '#FF0000', '#99FF00', '#990000']
     custom_cmap = mcolors.ListedColormap(colors)
 
     max_distance = np.max(distances)
