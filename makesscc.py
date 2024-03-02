@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# Gruppe 03
+# ProgPra WS2324
 import argparse
 import math
 import requests
