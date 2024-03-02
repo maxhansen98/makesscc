@@ -240,7 +240,7 @@ def plot_distance_matrix(distances, id):
     plt.imshow(distances, cmap=custom_cmap, norm=norm, origin='upper')
 
     # Add colorbar and labels
-    cbar = plt.colorbar(ticks=ticks)
+    cbar = plt.colorbar(ticks=ticks, label='Distance')
     cbar.ax.set_yticklabels(
         ['0', f'{max_distance * 1 / 8:.2f}', f'{max_distance * 2 / 8:.2f}', f'{max_distance * 3 / 8:.2f}',
          f'{max_distance * 4 / 8:.2f}', f'{max_distance * 5 / 8:.2f}', f'{max_distance * 6 / 8:.2f}',
