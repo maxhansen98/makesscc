@@ -124,7 +124,7 @@ def calc_contacts(atom_info, distance, seq_length, ss_info):
                 continue
             pos_j = atom_id[j]
             this_distance = calc_distance(atom_info[pos_i], atom_info[pos_j])
-            distance_dict[atom_info[pos_i][1], atom_info[pos_j][1]] = this_distance
+            distance_dict[(atom_info[pos_i][0], atom_info[pos_i][1]), (atom_info[pos_j][0], atom_info[pos_j][1])] = this_distance
             if this_distance < distance:
                 matches[atom_info[pos_i][1], atom_info[pos_j][1]] = 1
                 if abs(atom_info[pos_i][1] - atom_info[pos_j][1]) < seq_length and atom_info[pos_i][0] == \
